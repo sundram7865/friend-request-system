@@ -2,28 +2,38 @@ import { useCallback } from 'react';
 import { useAuth } from '../context/AuthContext';
 
 export default function useAuthActions() {
-  const { login, register } = useAuth();
+  const { register: contextRegister, login: contextLogin, logout: contextLogout } = useAuth();
 
-  const loginWithCredentials = useCallback(async (email, password) => {
+  const register = useCallback(async (userData) => {
     try {
-      await login({ email, password });
-      return true;
-    } catch (err) {
-      throw err.message || 'Login failed';
+      await contextRegister(userData);
+      return { success: true };
+    } catch (error) {
+      return { success: false, error: error.message };
     }
-  }, [login]);
+  }, [contextRegister]);
 
-  const registerWithDetails = useCallback(async (userData) => {
+  const login = useCallback(async (credentials) => {
     try {
-      await register(userData);
-      return true;
-    } catch (err) {
-      throw err.message || 'Registration failed';
+      await contextLogin(credentials);
+      return { success: true };
+    } catch (error) {
+      return { success: false, error: error.message };
     }
-  }, [register]);
+  }, [contextLogin]);
+
+  const logout = useCallback(() => {
+    try {
+      contextLogout();
+      return { success: true };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }, [contextLogout]);
 
   return {
-    loginWithCredentials,
-    registerWithDetails
+    register,
+    login,
+    logout
   };
 }

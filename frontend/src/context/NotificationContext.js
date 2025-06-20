@@ -1,4 +1,4 @@
-import { createContext, useContext, useState } from 'react';
+import { createContext, useContext, useState, useCallback } from 'react';
 
 const NotificationContext = createContext();
 
@@ -6,27 +6,29 @@ export const NotificationProvider = ({ children }) => {
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
 
-  const addNotification = (notification) => {
-    const newNotif = {
+  const addNotification = useCallback((notification) => {
+    const newNotification = {
       id: Date.now(),
       timestamp: new Date(),
       ...notification,
+      isRead: false
     };
-    setNotifications((prev) => [newNotif, ...prev]);
-    if (!notification.isRead) setUnreadCount((prev) => prev + 1);
-  };
+    
+    setNotifications(prev => [newNotification, ...prev]);
+    setUnreadCount(prev => prev + 1);
+  }, []);
 
-  const markAsRead = (id) => {
-    setNotifications((prev) =>
-      prev.map((n) => (n.id === id ? { ...n, isRead: true } : n))
+  const markAsRead = useCallback((id) => {
+    setNotifications(prev =>
+      prev.map(n => n.id === id ? { ...n, isRead: true } : n)
     );
-    setUnreadCount((prev) => Math.max(0, prev - 1));
-  };
+    setUnreadCount(prev => Math.max(0, prev - 1));
+  }, []);
 
-  const markAllAsRead = () => {
-    setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
+  const markAllAsRead = useCallback(() => {
+    setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
     setUnreadCount(0);
-  };
+  }, []);
 
   return (
     <NotificationContext.Provider
@@ -35,7 +37,7 @@ export const NotificationProvider = ({ children }) => {
         unreadCount,
         addNotification,
         markAsRead,
-        markAllAsRead,
+        markAllAsRead
       }}
     >
       {children}
@@ -43,4 +45,10 @@ export const NotificationProvider = ({ children }) => {
   );
 };
 
-export const useNotifications = () => useContext(NotificationContext);
+export const useNotifications = () => {
+  const context = useContext(NotificationContext);
+  if (!context) {
+    throw new Error('useNotifications must be used within NotificationProvider');
+  }
+  return context;
+};
