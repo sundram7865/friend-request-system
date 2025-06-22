@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { FiBell, FiUser, FiLogOut, FiSearch, FiMenu, FiX } from 'react-icons/fi';
 import { useAuth } from '../context/AuthContext';
 import { useNotifications } from '../context/NotificationContext';
-import Logo from '../assets/images/logo.svg';
+import Logo from '../pages/assets/images/logo.svg';
 
 export default function Navbar() {
   const { user, logout } = useAuth();

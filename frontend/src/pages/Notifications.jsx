@@ -3,7 +3,7 @@ import Notification from '../components/ui/Notification';
 import EmptyState from '../components/ui/EmptyState';
 
 export default function Notifications() {
-  const { notifications, markAllAsRead } = useNotifications();
+  const { notificationsbv, markAllAsRead } = useNotifications();
 
   return (
     <div className="p-6">

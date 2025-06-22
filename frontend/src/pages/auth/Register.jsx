@@ -1,30 +1,92 @@
-import { motion } from 'framer-motion';
-import RegisterForm from '../../components/auth/RegisterForm';
-import { Link } from 'react-router-dom';
-import Logo from '../assets/images/logo.svg';
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";  // Changed from "../context" to "../../context"
+import AuthLayout from "../../components/auth/AuthLayout";
+
 
 export default function Register() {
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const { register } = useAuth();
+  const navigate = useNavigate();
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      await register({ name, email, password });
+      navigate('/dashboard');
+    } catch (error) {
+      alert(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      className="min-h-screen flex items-center justify-center bg-gray-50"
-    >
-      <div className="w-full max-w-md p-8 space-y-8 bg-white rounded-lg shadow-md">
-        <div className="flex flex-col items-center">
-          <img src={Logo} alt="App Logo" className="h-12 mb-4" />
-          <h2 className="text-2xl font-bold text-center text-gray-900">
-            Create your account
-          </h2>
+    <AuthLayout title="Create Your Account">
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <div>
+          <label htmlFor="name" className="block text-sm font-medium text-gray-700">
+            Full Name
+          </label>
+          <input
+            id="name"
+            type="text"
+            required
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+          />
         </div>
-        <RegisterForm />
-        <div className="text-sm text-center">
-          Already have an account?{' '}
-          <Link to="/login" className="font-medium text-primary hover:text-indigo-700">
-            Sign in
-          </Link>
+
+        <div>
+          <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+            Email
+          </label>
+          <input
+            id="email"
+            type="email"
+            required
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+          />
         </div>
+
+        <div>
+          <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+            Password
+          </label>
+          <input
+            id="password"
+            type="password"
+            required
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+          />
+        </div>
+
+        <div>
+          <button
+            type="submit"
+            disabled={loading}
+            className={`w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+          >
+            {loading ? 'Creating account...' : 'Sign up'}
+          </button>
+        </div>
+      </form>
+
+      <div className="mt-4 text-center text-sm text-gray-600">
+        Already have an account?{' '}
+        <Link to="/login" className="font-medium text-indigo-600 hover:text-indigo-500">
+          Sign in
+        </Link>
       </div>
-    </motion.div>
+    </AuthLayout>
   );
 }
